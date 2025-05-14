@@ -9,6 +9,9 @@ app = Flask(__name__)
 
 @app.route("/twilio-webhook", methods=["POST"])
 def receber_mensagem():
+    print("🔍 Dados recebidos no webhook:")
+    print(request.form)  # <-- Adicione esta linha para inspecionar tudo que chegou
+
     mensagem = request.form.get("Body")
     telefone = request.form.get("From")
 
