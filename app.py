@@ -32,7 +32,8 @@ def receber_mensagem():
 def cadastrar_lead_no_vista(telefone, mensagem, nome, codigo=None):
     url = "http://fabianal-rest.vistahost.com.br/lead?key=1c0de57a8bef6c682ab91c949ec29506"
     headers = {
-        "Content-Type": "application/x-www-form-urlencoded"
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Accept": "application/json"
     }
 
     telefone_limpo = telefone.replace("whatsapp:", "").strip()
