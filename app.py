@@ -9,15 +9,19 @@ app = Flask(__name__)
 
 @app.route("/twilio-webhook", methods=["POST"])
 def receber_mensagem():
-    print("🔍 Dados recebidos no webhook:")
-    print(request.form)  # <-- Adicione esta linha para inspecionar tudo que chegou
+    print("🔍 Dados recebidos no webhook:", flush=True)
+    print(request.form, flush=True)
 
     mensagem = request.form.get("Body")
     telefone = request.form.get("From")
+    nome_wa = request.form.get("ProfileName")  # tentativa de obter nome do WhatsApp
 
-    print(f"📨 Nova mensagem de {telefone}: {mensagem}")
+    # fallback: nome genérico com telefone
+    nome_lead = nome_wa if nome_wa else f"Lead WhatsApp {telefone.replace('whatsapp:', '').strip()}"
 
-    nome_lead = f"Lead WhatsApp {telefone.replace('whatsapp:', '').strip()}"
+    print(f"📨 Nova mensagem de {telefone}: {mensagem}", flush=True)
+    print(f"👤 Nome detectado: {nome_lead}", flush=True)
+
     codigo_imovel = extrair_codigo_imovel(mensagem)
 
     cadastrar_lead_no_vista(telefone, mensagem, nome_lead, codigo_imovel)
@@ -52,11 +56,15 @@ def cadastrar_lead_no_vista(telefone, mensagem, nome, codigo=None):
 
     response = requests.post(url, data=payload, headers=headers)
 
+    print("📤 Enviando lead ao Vista Soft:", flush=True)
+    print(json.dumps(lead_data, indent=2, ensure_ascii=False), flush=True)
+
     if response.status_code == 200:
-        print("✅ Lead enviado ao Vista Soft.")
-        print(response.text)
+        print("✅ Vista Soft respondeu com sucesso:", flush=True)
+        print(response.text, flush=True)
     else:
-        print(f"❌ Erro ao cadastrar lead: {response.status_code} - {response.text}")
+        print(f"❌ Erro ao cadastrar lead: {response.status_code}", flush=True)
+        print(response.text, flush=True)
 
 def extrair_codigo_imovel(texto):
     padrao = r"c[oó]digo\s*(\d+)"
@@ -84,9 +92,10 @@ def enviar_mensagem_confirmacao(telefone, nome):
     response = requests.post(url, data=payload, auth=(account_sid, auth_token))
 
     if response.status_code in [200, 201]:
-        print("✅ Mensagem de confirmação enviada ao lead.")
+        print("✅ Mensagem de confirmação enviada ao lead.", flush=True)
     else:
-        print(f"❌ Erro ao enviar mensagem: {response.status_code} - {response.text}")
+        print(f"❌ Erro ao enviar mensagem: {response.status_code}", flush=True)
+        print(response.text, flush=True)
 
 def gerar_saudacao():
     hora = datetime.now().hour
