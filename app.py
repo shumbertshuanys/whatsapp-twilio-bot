@@ -25,9 +25,10 @@ def receber_mensagem():
     print(f"👤 Nome detectado: {nome_lead}", flush=True)
 
     cadastrar_lead_no_vista(telefone, mensagem, nome_lead, codigo_imovel)
+    
     if deve_responder(telefone):
-    enviar_mensagem_confirmacao(telefone, nome_lead)
-    registrar_resposta(telefone)
+        enviar_mensagem_confirmacao(telefone, nome_lead)
+        registrar_resposta(telefone)
     else:
         print("⏱️ Resposta automática não enviada (intervalo de 2h ainda não passou).", flush=True)
 
