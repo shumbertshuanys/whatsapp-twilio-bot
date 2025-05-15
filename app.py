@@ -14,15 +14,13 @@ def receber_mensagem():
 
     mensagem = request.form.get("Body")
     telefone = request.form.get("From")
-    nome_wa = request.form.get("ProfileName")  # tentativa de obter nome do WhatsApp
+    nome_wa = request.form.get("ProfileName")
 
-    # fallback: nome genérico com telefone
     nome_lead = nome_wa if nome_wa else f"Lead WhatsApp {telefone.replace('whatsapp:', '').strip()}"
+    codigo_imovel = extrair_codigo_imovel(mensagem)
 
     print(f"📨 Nova mensagem de {telefone}: {mensagem}", flush=True)
     print(f"👤 Nome detectado: {nome_lead}", flush=True)
-
-    codigo_imovel = extrair_codigo_imovel(mensagem)
 
     cadastrar_lead_no_vista(telefone, mensagem, nome_lead, codigo_imovel)
     enviar_mensagem_confirmacao(telefone, nome_lead)
@@ -63,8 +61,52 @@ def cadastrar_lead_no_vista(telefone, mensagem, nome, codigo=None):
     if response.status_code == 200:
         print("✅ Vista Soft respondeu com sucesso:", flush=True)
         print(response.text, flush=True)
+    elif response.status_code == 400 and "já existe" in response.text:
+        print("ℹ️ Cliente já cadastrado. Tentando lançar histórico...", flush=True)
+        try:
+            resposta_json = response.json()
+            codigo_cliente = resposta_json["message"][1]["Cliente_codigo"]
+            if codigo and codigo_cliente:
+                lançar_historico_cliente(codigo_cliente, codigo, mensagem)
+        except Exception as e:
+            print("⚠️ Erro ao interpretar resposta de cliente já existente:", flush=True)
+            print(e, flush=True)
+            print(response.text, flush=True)
     else:
         print(f"❌ Erro ao cadastrar lead: {response.status_code}", flush=True)
+        print(response.text, flush=True)
+
+def lançar_historico_cliente(codigo_cliente, codigo_imovel, mensagem):
+    url = "http://fabianal-rest.vistahost.com.br/clientes/detalhes?key=1c0de57a8bef6c682ab91c949ec29506"
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Accept": "application/json"
+    }
+
+    historico_data = {
+        "fields": {
+            "Cliente": codigo_cliente,
+            "Historico": {
+                "Assunto": "Lead do Instagram",
+                "Imovel": codigo_imovel,
+                "Texto": mensagem
+            }
+        }
+    }
+
+    payload = {
+        "cadastro": json.dumps(historico_data)
+    }
+
+    response = requests.post(url, data=payload, headers=headers)
+
+    print("📝 Lançando histórico no cliente existente:", flush=True)
+    print(json.dumps(historico_data, indent=2, ensure_ascii=False), flush=True)
+
+    if response.status_code == 200:
+        print("✅ Histórico lançado com sucesso.", flush=True)
+    else:
+        print(f"❌ Erro ao lançar histórico: {response.status_code}", flush=True)
         print(response.text, flush=True)
 
 def extrair_codigo_imovel(texto):
