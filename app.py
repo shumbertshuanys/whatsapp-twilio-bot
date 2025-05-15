@@ -4,6 +4,8 @@ import os
 import json
 import re
 from datetime import datetime
+import sqlite3
+from datetime import timedelta
 
 app = Flask(__name__)
 
@@ -23,7 +25,12 @@ def receber_mensagem():
     print(f"👤 Nome detectado: {nome_lead}", flush=True)
 
     cadastrar_lead_no_vista(telefone, mensagem, nome_lead, codigo_imovel)
+    if deve_responder(telefone):
     enviar_mensagem_confirmacao(telefone, nome_lead)
+    registrar_resposta(telefone)
+    else:
+        print("⏱️ Resposta automática não enviada (intervalo de 2h ainda não passou).", flush=True)
+
 
     return "Mensagem recebida com sucesso", 200
 
@@ -148,6 +155,37 @@ def gerar_saudacao():
         return "Boa tarde"
     else:
         return "Boa noite"
+
+def deve_responder(telefone):
+    try:
+        conn = sqlite3.connect("respostas.db")
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS respostas (
+                telefone TEXT PRIMARY KEY,
+                ultima_resposta DATETIME
+            )
+        """)
+        cursor.execute("SELECT ultima_resposta FROM respostas WHERE telefone = ?", (telefone,))
+        row = cursor.fetchone()
+        agora = datetime.now()
+
+        if row:
+            ultima_resposta = datetime.fromisoformat(row[0])
+            if agora - ultima_resposta < timedelta(hours=2):
+                return False  # já respondeu nas últimas 2h
+
+        return True  # pode responder
+    finally:
+        conn.close()
+
+def registrar_resposta(telefone):
+    conn = sqlite3.connect("respostas.db")
+    cursor = conn.cursor()
+    agora = datetime.now().isoformat()
+    cursor.execute("REPLACE INTO respostas (telefone, ultima_resposta) VALUES (?, ?)", (telefone, agora))
+    conn.commit()
+    conn.close()
 
 @app.route("/ping", methods=["GET"])
 def ping():
