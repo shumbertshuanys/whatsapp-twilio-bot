@@ -1,3 +1,8 @@
+import os
+PORT = int(os.environ.get("PORT", 8501))
+os.environ["STREAMLIT_SERVER_PORT"] = str(PORT)
+os.environ["STREAMLIT_SERVER_HEADLESS"] = "true"
+
 import streamlit as st
 import sqlite3
 import pandas as pd
@@ -8,7 +13,6 @@ st.title("📊 Painel de Leads Respondidos - WhatsApp")
 
 # Função para carregar os dados do banco
 @st.cache_data
-
 def carregar_respostas():
     try:
         conn = sqlite3.connect("respostas.db")
