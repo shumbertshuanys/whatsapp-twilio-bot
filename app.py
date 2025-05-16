@@ -51,6 +51,7 @@ def cadastrar_lead_no_vista(telefone, mensagem, nome, codigo=None):
             "mensagem": mensagem,
             "veiculo": "Instagram",
             "interesse": "venda"
+            "corretor": 2
         }
     }
 
