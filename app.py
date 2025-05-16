@@ -196,8 +196,12 @@ def registrar_resposta(telefone):
 def ping():
     return "🏓 Bot ativo", 200
 
-@app.route("/ver-respostas", methods=["GET"])
-def ver_respostas():
+from flask import Response
+import csv
+from io import StringIO
+
+@app.route("/export-csv", methods=["GET"])
+def export_csv():
     try:
         conn = sqlite3.connect("respostas.db")
         cursor = conn.cursor()
@@ -205,12 +209,17 @@ def ver_respostas():
         dados = cursor.fetchall()
         conn.close()
 
-        return {
-            "respostas": [
-                {"telefone": t, "ultima_resposta": u}
-                for (t, u) in dados
-            ]
-        }
+        output = StringIO()
+        writer = csv.writer(output)
+        writer.writerow(["telefone", "ultima_resposta"])
+        writer.writerows(dados)
+        output.seek(0)
+
+        return Response(
+            output,
+            mimetype="text/csv",
+            headers={"Content-Disposition": "attachment; filename=relatorio_leads.csv"}
+        )
     except Exception as e:
         return {"erro": str(e)}, 500
 
