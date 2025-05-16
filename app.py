@@ -131,7 +131,7 @@ def enviar_mensagem_confirmacao(telefone, nome):
     from_whatsapp = os.environ.get("TWILIO_NUMBER")
 
     saudacao = gerar_saudacao()
-    mensagem = f"{saudacao}, {nome}! 😃\n\nBem-vindo(a) à 📲 www.FabianaLouzadaimoveis.com.br\nNossa corretora de imóveis irá te chamar com mais detalhes em breve."
+    mensagem = f"{saudacao}, {nome}! 😃\n\nBem-vindo(a) à 📲 www.FabianaLouzadaimoveis.com.br\nNosso corretor de imóveis irá te chamar com mais detalhes em breve."
 
     url = f"https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Messages.json"
 
@@ -149,8 +149,11 @@ def enviar_mensagem_confirmacao(telefone, nome):
         print(f"❌ Erro ao enviar mensagem: {response.status_code}", flush=True)
         print(response.text, flush=True)
 
+from pytz import timezone
+
 def gerar_saudacao():
-    hora = datetime.now().hour
+    fuso_brasil = timezone("America/Sao_Paulo")
+    hora = datetime.now(fuso_brasil).hour
     if 5 <= hora < 12:
         return "Bom dia"
     elif 12 <= hora < 18:
