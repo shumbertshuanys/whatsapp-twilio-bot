@@ -196,6 +196,24 @@ def registrar_resposta(telefone):
 def ping():
     return "🏓 Bot ativo", 200
 
+@app.route("/ver-respostas", methods=["GET"])
+def ver_respostas():
+    try:
+        conn = sqlite3.connect("respostas.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT telefone, ultima_resposta FROM respostas ORDER BY ultima_resposta DESC")
+        dados = cursor.fetchall()
+        conn.close()
+
+        return {
+            "respostas": [
+                {"telefone": t, "ultima_resposta": u}
+                for (t, u) in dados
+            ]
+        }
+    except Exception as e:
+        return {"erro": str(e)}, 500
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
