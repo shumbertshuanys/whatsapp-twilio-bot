@@ -87,6 +87,7 @@ def cadastrar_lead_no_vista(telefone, mensagem, nome, codigo=None):
     else:
         print(f"❌ Erro ao cadastrar lead: {response.status_code}", flush=True)
         print(response.text, flush=True)
+        registrar_envio_vista(telefone_limpo, nome, mensagem, codigo, response.text)
 
 def lançar_historico_cliente(codigo_cliente, codigo_imovel, mensagem):
     url = "http://fabianal-rest.vistahost.com.br/clientes/detalhes?key=1c0de57a8bef6c682ab91c949ec29506"
