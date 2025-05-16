@@ -70,8 +70,11 @@ def cadastrar_lead_no_vista(telefone, mensagem, nome, codigo=None):
     if response.status_code == 200:
         print("✅ Vista Soft respondeu com sucesso:", flush=True)
         print(response.text, flush=True)
+        registrar_envio_vista(telefone_limpo, nome, mensagem, codigo, response.text)
+
     elif response.status_code == 400 and "já existe" in response.text:
         print("ℹ️ Cliente já cadastrado. Tentando lançar histórico...", flush=True)
+        registrar_envio_vista(telefone_limpo, nome, mensagem, codigo, response.text)
         try:
             resposta_json = response.json()
             codigo_cliente = resposta_json["message"][1]["Cliente_codigo"]
@@ -200,6 +203,30 @@ def registrar_resposta(telefone):
     conn.commit()
     conn.close()
 
+def registrar_envio_vista(telefone, nome, mensagem, codigo_imovel, resposta_crm):
+    try:
+        conn = sqlite3.connect("envios.db")
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS envios (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                telefone TEXT,
+                nome TEXT,
+                mensagem TEXT,
+                codigo_imovel INTEGER,
+                resposta_crm TEXT,
+                data_envio DATETIME
+            )
+        """)
+        agora = datetime.now(timezone("America/Sao_Paulo")).isoformat()
+        cursor.execute("""
+            INSERT INTO envios (telefone, nome, mensagem, codigo_imovel, resposta_crm, data_envio)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (telefone, nome, mensagem, codigo_imovel, resposta_crm, agora))
+        conn.commit()
+    finally:
+        conn.close()
+
 @app.route("/ping", methods=["GET"])
 def ping():
     return "🏓 Bot ativo", 200
@@ -227,6 +254,33 @@ def export_csv():
             output,
             mimetype="text/csv",
             headers={"Content-Disposition": "attachment; filename=relatorio_leads.csv"}
+        )
+    except Exception as e:
+        return {"erro": str(e)}, 500
+
+@app.route("/export-envios", methods=["GET"])
+def export_envios():
+    try:
+        conn = sqlite3.connect("envios.db")
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT telefone, nome, mensagem, codigo_imovel, resposta_crm, data_envio
+            FROM envios
+            ORDER BY data_envio DESC
+        """)
+        dados = cursor.fetchall()
+        conn.close()
+
+        output = StringIO()
+        writer = csv.writer(output)
+        writer.writerow(["telefone", "nome", "mensagem", "codigo_imovel", "resposta_crm", "data_envio"])
+        writer.writerows(dados)
+        output.seek(0)
+
+        return Response(
+            output,
+            mimetype="text/csv",
+            headers={"Content-Disposition": "attachment; filename=envios_crm.csv"}
         )
     except Exception as e:
         return {"erro": str(e)}, 500
