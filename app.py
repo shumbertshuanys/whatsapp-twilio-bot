@@ -173,21 +173,24 @@ def deve_responder(telefone):
         """)
         cursor.execute("SELECT ultima_resposta FROM respostas WHERE telefone = ?", (telefone,))
         row = cursor.fetchone()
-        agora = datetime.now()
+
+        fuso_brasil = timezone("America/Sao_Paulo")
+        agora = datetime.now(fuso_brasil)
 
         if row:
             ultima_resposta = datetime.fromisoformat(row[0])
             if agora - ultima_resposta < timedelta(hours=2):
-                return False  # já respondeu nas últimas 2h
+                return False
 
-        return True  # pode responder
+        return True
     finally:
         conn.close()
 
 def registrar_resposta(telefone):
     conn = sqlite3.connect("respostas.db")
     cursor = conn.cursor()
-    agora = datetime.now().isoformat()
+    fuso_brasil = timezone("America/Sao_Paulo")
+    agora = datetime.now(fuso_brasil).isoformat()
     cursor.execute("REPLACE INTO respostas (telefone, ultima_resposta) VALUES (?, ?)", (telefone, agora))
     conn.commit()
     conn.close()
