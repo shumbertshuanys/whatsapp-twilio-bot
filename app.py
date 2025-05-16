@@ -131,7 +131,12 @@ def enviar_mensagem_confirmacao(telefone, nome):
     from_whatsapp = os.environ.get("TWILIO_NUMBER")
 
     saudacao = gerar_saudacao()
-    mensagem = f"{saudacao}, {nome}! 😃\n\nBem-vindo(a) à 📲 www.FabianaLouzadaimoveis.com.br\nNosso corretor de imóveis irá te chamar com mais detalhes em breve."
+    mensagem = (
+        f"{saudacao}, {nome}! 😃\n\n"
+        "Bem-vindo(a) à 📲 *Fabiana Louzada Imóveis*\n"
+        "Nosso corretor de imóveis irá te chamar com mais detalhes em breve.\n"
+        "🌐 https://www.fabianalouzadaimoveis.com.br"
+    )
 
     url = f"https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Messages.json"
 
