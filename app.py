@@ -311,7 +311,15 @@ def inicializar_banco():
     finally:
         conn.close()
 
+import subprocess
+
 if __name__ == "__main__":
-    inicializar_banco()  # ← ESTA LINHA NOVA
+    from threading import Thread
+
+    # Iniciar o painel Streamlit em uma thread separada
+    def start_streamlit():
+        subprocess.Popen(["streamlit", "run", "dashboard.py"])
+
+    Thread(target=start_streamlit).start()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
