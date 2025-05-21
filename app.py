@@ -321,4 +321,4 @@ if __name__ == "__main__":
         subprocess.Popen(["streamlit", "run", "dashboard.py"])
 
     Thread(target=start_streamlit).start()
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=10001)
