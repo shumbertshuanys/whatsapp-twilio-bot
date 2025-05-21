@@ -2,8 +2,8 @@ services:
   - type: web
     name: whatsapp-twilio-bot
     env: python
-    buildCommand: cd bot && pip install -r requirements.txt
-    startCommand: python app.py
+    buildCommand: pip install -r bot/requirements.txt
+    startCommand: python bot/app.py
     envVars:
       - key: PORT
         value: 10000
@@ -11,8 +11,8 @@ services:
   - type: web
     name: whatsapp-twilio-dashboard
     env: python
-    buildCommand: cd dashboard && pip install -r requirements.txt
-    startCommand: streamlit run dashboard.py
+    buildCommand: pip install -r dashboard/requirements.txt
+    startCommand: streamlit run dashboard/dashboard.py
     envVars:
       - key: PORT
         value: 8501
