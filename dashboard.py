@@ -1,4 +1,14 @@
 import os
+import subprocess
+from threading import Thread
+
+# Iniciar Flask (webhook do bot) em thread paralela
+def iniciar_flask():
+    subprocess.Popen(["python", "app.py"])
+
+Thread(target=iniciar_flask, daemon=True).start()
+
+# Configurações do Streamlit
 PORT = int(os.environ.get("PORT", 8501))
 os.environ["STREAMLIT_SERVER_PORT"] = str(PORT)
 os.environ["STREAMLIT_SERVER_HEADLESS"] = "true"
