@@ -310,16 +310,3 @@ def inicializar_banco():
         print("⚠️ Erro ao inicializar banco de dados de respostas:", e, flush=True)
     finally:
         conn.close()
-
-import subprocess
-
-if __name__ == "__main__":
-    from threading import Thread
-
-    # Iniciar o painel Streamlit em uma thread separada
-    def start_streamlit():
-        subprocess.Popen(["streamlit", "run", "dashboard.py"])
-
-    Thread(target=start_streamlit).start()
-    app.run(host="0.0.0.0", port=10001)
-
