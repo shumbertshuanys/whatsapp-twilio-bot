@@ -2,15 +2,16 @@ services:
   - type: web
     name: whatsapp-twilio-bot
     env: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: cd bot && pip install -r requirements.txt
     startCommand: python app.py
     envVars:
       - key: PORT
         value: 10000
+
   - type: web
     name: whatsapp-twilio-dashboard
     env: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: cd dashboard && pip install -r requirements.txt
     startCommand: streamlit run dashboard.py
     envVars:
       - key: PORT
