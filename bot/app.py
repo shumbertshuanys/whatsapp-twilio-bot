@@ -310,3 +310,8 @@ def inicializar_banco():
         print("⚠️ Erro ao inicializar banco de dados de respostas:", e, flush=True)
     finally:
         conn.close()
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
+
