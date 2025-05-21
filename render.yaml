@@ -7,12 +7,3 @@ services:
     envVars:
       - key: PORT
         value: 10000
-
-  - type: web
-    name: whatsapp-twilio-dashboard
-    env: python
-    buildCommand: pip install -r dashboard/requirements.txt
-    startCommand: streamlit run dashboard/dashboard.py
-    envVars:
-      - key: PORT
-        value: 8501
