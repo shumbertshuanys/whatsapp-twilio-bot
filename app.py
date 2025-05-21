@@ -129,6 +129,10 @@ def extrair_codigo_imovel(texto):
         return int(match.group(1))
     return None
 
+import os
+import requests
+from pytz import timezone
+
 def enviar_mensagem_confirmacao(telefone, nome):
     account_sid = os.environ.get("TWILIO_SID")
     auth_token = os.environ.get("TWILIO_TOKEN")
@@ -143,20 +147,24 @@ def enviar_mensagem_confirmacao(telefone, nome):
     )
 
     url = f"https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Messages.json"
-
     payload = {
         "To": telefone,
         "From": f"whatsapp:{from_whatsapp}",
         "Body": mensagem
     }
 
-    response = requests.post(url, data=payload, auth=(account_sid, auth_token))
-
-    if response.status_code in [200, 201]:
-        print("✅ Mensagem de confirmação enviada ao lead.", flush=True)
-    else:
-        print(f"❌ Erro ao enviar mensagem: {response.status_code}", flush=True)
-        print(response.text, flush=True)
+    try:
+        response = requests.post(url, data=payload, auth=(account_sid, auth_token))
+        if response.status_code in [200, 201]:
+            print("✅ Mensagem de confirmação enviada ao lead.", flush=True)
+        else:
+            print(f"❌ Erro ao enviar mensagem ({response.status_code}): {response.text}", flush=True)
+    except requests.exceptions.RequestException as e:
+        print("❌ Falha ao tentar enviar mensagem via API do Twilio:", flush=True)
+        print(str(e), flush=True)
+    except Exception as e:
+        print("❌ Erro inesperado ao enviar mensagem de confirmação:", flush=True)
+        print(str(e), flush=True)
 
 from pytz import timezone
 
