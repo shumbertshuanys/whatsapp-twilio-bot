@@ -321,5 +321,4 @@ if __name__ == "__main__":
         subprocess.Popen(["streamlit", "run", "dashboard.py"])
 
     Thread(target=start_streamlit).start()
-    port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
