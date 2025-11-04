@@ -51,7 +51,7 @@ def cadastrar_lead_no_vista(telefone, mensagem, nome, codigo=None):
             "mensagem": mensagem,
             "veiculo": "Instagram",
             "interesse": "venda",
-            "corretor": 2
+            "corretor": 93
         }
     }
 
@@ -143,7 +143,6 @@ def enviar_mensagem_confirmacao(telefone, nome):
         f"{saudacao}, {nome}! 😃\n\n"
         "Bem-vindo(a) à 📲 *Fabiana Louzada Imóveis*\n"
         "Nosso corretor de imóveis irá te chamar com mais detalhes em breve.\n"
-        "🌐 https://www.fabianalouzadaimoveis.com.br"
     )
 
     url = f"https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Messages.json"
